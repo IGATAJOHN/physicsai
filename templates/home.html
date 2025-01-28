@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Physics Problems</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <script src="https://unpkg.com/@mui/material@5.14.14/umd/material-ui.development.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://checkout.flutterwave.com/v3.js"></script>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  
+  <script type="text/javascript" id="MathJax-script" async
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+  <!-- SweetAlert CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <!-- SweetAlert JS -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<style>
+/* Ensure modal content is centered and responsive */
+.modal-overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+}
+
+.upgrade-modal {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 600px; /* Adjust max-width for larger screens */
+  width: 90%; /* Ensure width is responsive */
+  max-height: 90vh; /* Ensure modal is not taller than viewport */
+  overflow-y: auto; /* Allow scrolling if modal content exceeds viewport height */
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Adjustments for smaller screens */
+@media (max-width: 768px) {
+  .upgrade-modal {
+    padding: 1rem; /* Reduce padding on smaller screens */
+    width: 90%;
+    height: auto;
+    font-size: 14px; /* Adjust font size for readability */
+  }
+
+  .upgrade-modal h2 {
+    font-size: 1.2rem; /* Adjust heading size */
+  }
+
+  .upgrade-modal p {
+    font-size: 1rem; /* Adjust paragraph size */
+  }
+
+  .upgrade-modal button {
+    padding: 0.75rem 1rem; /* Adjust button padding */
+    font-size: 1rem; /* Adjust button font size */
+  }
+
+  .price-details p {
+    font-size: 1.5rem; /* Adjust price text size */
+  }
+}
+
+/* Adjustments for larger screens */
+@media (min-width: 769px) {
+  .upgrade-modal {
+    padding: 2rem; /* Increase padding for larger screens */
+    font-size: 16px; /* Adjust font size */
+  }
+
+  .upgrade-modal h2 {
+    font-size: 1.5rem; /* Adjust heading size */
+  }
+
+  .upgrade-modal p {
+    font-size: 1.1rem; /* Adjust paragraph size */
+  }
+
+  .upgrade-modal button {
+    padding: 1rem 1.5rem; /* Adjust button padding */
+    font-size: 1.1rem; /* Adjust button font size */
+  }
+
+  .price-details p {
+    font-size: 2rem; /* Adjust price text size */
+  }
+}
+
+</style>
+<body class="bg-gray-50 font-sans">
+  <div class="app-container">
+    <header class="bg-blue-600 text-white shadow-lg">
+      <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+        <h1 class="font-bold text-xl">Smart Physics Assignment Tool</h1>
+        <!-- Hamburger Button for Mobile -->
+        <div class="md:hidden">
+          <button id="hamburgerBtn" class="text-white focus:outline-none">
+            <i class="material-icons text-4xl">menu</i>
+          </button>
+        </div>
+        <!-- Navigation Menu -->
+        <div id="navMenu" class="hidden md:flex space-x-6">
+          <!-- <a href="https://example.com/home" class="nav-link text-white hover:text-gray-200">Home</a> -->
+          <!-- <a href="https://example.com/assignments" class="nav-link text-white hover:text-gray-200">Assignments</a> -->
+          <!-- <a href="https://example.com/profile" class="nav-link text-white hover:text-gray-200">Profile</a> -->
+          <button id="upgradeBtn" class="bg-yellow-500 text-black px-4 py-1 md:px-4 md:py-2 rounded-lg">Upgrade</button>
+          <button id="logoutBtn" class="bg-red-500 text-white px-4 py-1 md:px-4 md:py-2 rounded-lg">Logout</button>
+        </div>
+      </nav>
+    </header>
+    <!-- Dropdown Menu for Mobile -->
+    <div id="dropdownMenu" class="hidden md:hidden bg-blue-600 text-white space-y-2 py-4 px-4">
+      <a href="https://example.com/home" class="block nav-link">Home</a>
+      <!-- <a href="https://example.com/assignments" class="block nav-link">Assignments</a> -->
+      <!-- <a href="https://example.com/profile" class="block nav-link">Profile</a> -->
+      <!-- Upgrade Button for Mobile -->
+<button id="upgradeBtnMobile" class="w-full bg-yellow-500 text-black px-4 py-1 rounded-lg">Upgrade</button>
+      <button id="logoutBtnMobile" class="w-full bg-red-500 text-white px-4 py-1 rounded-lg">Logout</button>
+    </div>
+    
+    <main class="main-content bg-gray-100 min-h-screen py-8">
+      <div class="container mx-auto px-4">
+        <div id="errorDisplay"></div>
+        
+        <div class="upload-container bg-white p-6 rounded-lg shadow-md max-w-lg mx-auto">
+          <form id="uploadForm" enctype="multipart/form-data">
+            <div id="dropzone" class="dropzone border-2 border-dashed border-gray-300 p-8 rounded-lg flex flex-col items-center">
+              <input type="file" id="fileInput" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
+              <label for="fileInput" class="cursor-pointer">
+                <div class="text-gray-600">
+                  <i class="material-icons text-4xl mb-2">cloud_upload</i>
+                  <p>Drag and drop your assignment here or click to browse</p>
+                  <p class="text-sm text-gray-500 mt-2">Supported formats: PDF, JPG, PNG</p>
+                  <p id="selectedFileName" class="mt-2 text-blue-600 hidden"></p>
+                </div>
+              </label>
+            </div>
+            <p id="selectedFileName" class="mt-2 text-blue-600 hidden"></p>
+            <button id="installBtn" style="display: none;">Install App</button>
+            <div id="progressBar" class="progress-bar mt-4 hidden">
+              <div id="progressBarFill" class="progress-bar-fill"></div>
+            </div>
+    
+            <div id="loadingSpinner" class="hidden flex flex-col items-center mt-4">
+              <div class="spinner border-t-4 border-blue-500 rounded-full w-12 h-12 animate-spin"></div>
+              <p>Analyzing your assignment...</p>
+            </div>
+    
+            <button type="submit" id="analyzeBtn" class="mt-6 w-full bg-blue-600 text-white py-2 px-4 rounded-lg shadow-lg hover:bg-blue-700 transition duration-300">
+              Analyze Assignment
+            </button>
+          </form>
+        </div>
+<!-- Tabs for Problems and Solutions -->
+<div id="resultsSection" class="hidden mt-8">
+  <!-- Tab Navigation -->
+  <div class="tabs flex justify-center mb-4">
+    <button id="problemsTab" class="tab-button bg-gray-300 text-gray-700 py-2 px-4 mr-2 rounded-lg">Problems</button>
+    <button id="solutionsTab" class="tab-button bg-gray-300 text-gray-700 py-2 px-4 rounded-lg">Solutions</button>
+  </div>
+  
+  <!-- Tab Content -->
+  <div id="problemsContent" class="tab-content bg-white p-6 rounded-lg shadow-md">
+    <h2 class="text-xl font-bold mb-4">Extracted Problems</h2>
+    <ul id="problemsList" class="list-disc pl-6 space-y-2"></ul>
+  </div>
+  <div id="solutionsContent" class="tab-content bg-white p-6 rounded-lg shadow-md hidden">
+    <h2 class="text-xl font-bold mb-4">Solutions</h2>
+    <ul id="solutionsList" class="list-disc pl-6 space-y-2"></ul>
+    <button id="downloadPdfBtn" class="mt-4 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg hover:bg-green-600 transition duration-300">
+      Download Solutions in PDF
+    </button>
+
+  </div>
+</div>
+        
+
+      </div>
+    </main>
+  
+    <footer class="bg-blue-800 text-white py-6">
+      <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <p class="text-sm">&copy; 2025 SPAT Powered by QIT. All rights reserved.</p>
+          <div class="space-x-4 mt-4 md:mt-0">
+            <a href="https://example.com/terms" class="text-gray-300 hover:text-white">Terms</a>
+            <a href="https://example.com/privacy" class="text-gray-300 hover:text-white">Privacy Policy</a>
+            <a href="https://example.com/contact" class="text-gray-300 hover:text-white">Contact</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+  
+  <!-- Modal Template -->
+  <div id="conceptsModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden">
+    <div class="key-concepts-modal bg-white p-6 rounded-lg shadow-lg w-1/3">
+      <div id="modalContent"></div>
+      <button id="closeModal" class="mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300">Close</button>
+    </div>
+  </div>
+<!-- Upgrade Modal -->
+<div id="upgradeModal" class="modal-overlay hidden fixed inset-0 bg-black bg-opacity-50 flex-center">
+  <div class="upgrade-modal">
+      <h2 class="text-xl font-bold mb-4">Upgrade Your Account</h2>
+      <p class="mb-4">You have reached the limit of 3 free file uploads. Upgrade now to continue using all features!</p>
+      <div class="price-details mb-6">
+          <p class="text-2xl font-bold">₦4,500</p>
+          <p class="text-gray-600">Unlimited access</p>
+      </div>
+      <button id="payButton" class="w-full bg-blue-500 text-white py-2 px-4 rounded mb-4">
+          Pay with Flutterwave
+      </button>
+      <button id="closeUpgradeModal" class="w-full border border-gray-300 py-2 px-4 rounded">
+          Cancel
+      </button>
+  </div>
+</div>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  <!-- Logout Button for Mobile -->
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const logoutBtns = [document.getElementById('logoutBtn'), document.getElementById('logoutBtnMobile')];
+
+    const logout = () => {
+        fetch('/logout', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = "{{ url_for('login') }}"; // Redirect to login page
+                } else {
+                    Swal.fire('Error', 'Logout failed. Please try again.', 'error');
+                }
+            })
+            .catch(error => {
+                Swal.fire('Error', 'An unexpected error occurred. Please try again.', 'error');
+            });
+    };
+
+    logoutBtns.forEach(button => {
+        if (button) button.addEventListener('click', logout);
+    });
+});
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registration Page</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+  <style>
+    body, html {
+      height: 100%;
+      margin: 0;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+  <div class="container mx-auto flex flex-col md:flex-row bg-white shadow-md rounded-lg overflow-hidden h-full md:h-auto">
+    <div class="w-full md:w-1/2 bg-cover bg-center" style="background-image: url('{{ url_for('static', filename='assets/1.jpg') }}');">
+      <div class="h-full flex flex-col justify-center items-center bg-black bg-opacity-50 text-white p-8">
+        <h2 class="text-4xl font-bold mb-4">Unleash Your Potentials</h2>
+      </div>
+    </div>
+    <div class="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center overflow-y-auto">
+      <div class="flex justify-center mb-8">
+        <img src="{{ url_for('static', filename='assets/qit.png') }}" alt="Your Logo" class="h-24 md:h-32 w-auto">
+      </div>
+      <h2 class="text-3xl md:text-4xl font-bold text-center mb-6 md:mb-8">Register</h2>
+      <form id="registrationForm" class="space-y-4 md:space-y-6 max-w-lg mx-auto w-full" method="POST" action="{{ url_for('register') }}">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="form-group">
+            <label for="firstName" class="block text-lg md:text-xl text-gray-700">First Name</label>
+            <input type="text" id="firstName" name="firstName" placeholder="Enter your first name" required class="w-full px-3 py-2 md:px-4 md:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <div class="error-message text-red-500 text-sm mt-1" id="firstNameError"></div>
+          </div>
+          <div class="form-group">
+            <label for="lastName" class="block text-lg md:text-xl text-gray-700">Last Name</label>
+            <input type="text" id="lastName" name="lastName" placeholder="Enter your last name" required class="w-full px-3 py-2 md:px-4 md:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <div class="error-message text-red-500 text-sm mt-1" id="lastNameError"></div>
+          </div>
+          <div class="form-group">
+            <label for="email" class="block text-lg md:text-xl text-gray-700">Email</label>
+            <input type="email" id="email" name="email" placeholder="Enter your email" required class="w-full px-3 py-2 md:px-4 md:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <div class="error-message text-red-500 text-sm mt-1" id="emailError"></div>
+          </div>
+          <div class="form-group">
+            <label for="phone" class="block text-lg md:text-xl text-gray-700">Phone</label>
+            <input type="text" id="phone" name="phone" placeholder="Enter your phone number" required class="w-full px-3 py-2 md:px-4 md:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <div class="error-message text-red-500 text-sm mt-1" id="phoneError"></div>
+          </div>
+          <div class="form-group">
+            <label for="password" class="block text-lg md:text-xl text-gray-700">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required class="w-full px-3 py-2 md:px-4 md:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <div class="error-message text-red-500 text-sm mt-1" id="passwordError"></div>
+          </div>
+          <div class="form-group">
+            <label for="confirmPassword" class="block text-lg md:text-xl text-gray-700">Confirm Password</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required class="w-full px-3 py-2 md:px-4 md:py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <div class="error-message text-red-500 text-sm mt-1" id="confirmPasswordError"></div>
+          </div>
+        </div>
+        <button type="submit" class="w-full bg-blue-500 text-white py-2 md:py-3 px-4 rounded-lg hover:bg-blue-600 transition duration-300 text-lg">Register</button>
+      </form>
+      <p class="text-center mt-4 md:mt-6 text-lg">
+        Already have an account? <a href="{{ url_for('login') }}" class="text-blue-500 hover:underline">Sign In</a>
+      </p>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+  <script>
+    document.getElementById('registrationForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const formData = new FormData(this);
+      fetch(this.action, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.error) {
+          Swal.fire('Error', data.error, 'error');
+        } else {
+          Swal.fire('Success', 'Registration successful!', 'success').then(() => {
+            window.location.href = "{{ url_for('login') }}";
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        Swal.fire('Error', 'An unexpected error occurred.', 'error');
+      });
+    });
+  </script>
+</body>
+</html>
