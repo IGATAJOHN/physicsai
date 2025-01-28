@@ -7,3 +7,4 @@ python-dotenv
 reportlab
 pymongo
 Flask-Login
+matplotlib
