@@ -71,32 +71,35 @@
 
   <script>
     document.getElementById('registrationForm').addEventListener('submit', function(event) {
-      event.preventDefault();
-      const formData = new FormData(this);
-      fetch(this.action, {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => {
-        if (data.error) {
-          Swal.fire('Error', data.error, 'error');
-        } else {
-          Swal.fire('Success', 'Registration successful!', 'success').then(() => {
-            window.location.href = "{{ url_for('login') }}";
-          });
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        Swal.fire('Error', 'An unexpected error occurred.', 'error');
+  event.preventDefault();
+  const formData = new FormData(this);
+  fetch(this.action, {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  })
+  .then(data => {
+    if (data.error) {
+      Swal.fire('Error', JSON.stringify(data.error), 'error');
+    } else if (data.message) {
+      Swal.fire('Success', data.message, 'success').then(() => {
+        window.location.href = "{{ url_for('login') }}";
       });
-    });
+    } else {
+      Swal.fire('Error', 'Unexpected response from server', 'error');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    Swal.fire('Error', 'An unexpected error occurred.', 'error');
+  });
+});
+
   </script>
 </body>
 </html>
