@@ -70,33 +70,71 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
   <script>
-    document.getElementById('registrationForm').addEventListener('submit', function(event) {
+toastr.options = {
+  "closeButton": true,
+  "debug": false,
+  "newestOnTop": true,
+  "progressBar": true,
+  "positionClass": "toast-top-right", // Adjust as needed
+  "preventDuplicates": false,
+  "onclick": null,
+  "showDuration": "300",
+  "hideDuration": "1000",
+  "timeOut": "5000",
+  "extendedTimeOut": "1000",
+  "showEasing": "swing",
+  "hideEasing": "linear",
+  "showMethod": "fadeIn",
+  "hideMethod": "fadeOut"
+};
+
+document.getElementById('registrationForm').addEventListener('submit', function(event) {
   event.preventDefault();
   const formData = new FormData(this);
+
   fetch(this.action, {
     method: 'POST',
-    body: formData
+    body: formData,
   })
   .then(response => {
+    console.log('Response status:', response.status); // Debug log
     if (!response.ok) {
-      throw new Error('Network response was not ok');
+      return response.json().then(data => {
+        throw new Error(data.error || 'Network response was not ok');
+      });
     }
     return response.json();
   })
   .then(data => {
+    console.log('Response data:', data); // Debug log
     if (data.error) {
-      Swal.fire('Error', JSON.stringify(data.error), 'error');
+      try {
+        toastr.error(data.error, 'Error');
+      } catch (toastError) {
+        console.error('Toastr Error:', toastError);
+        alert(data.error); // Fallback to alert if toastr fails
+      }
     } else if (data.message) {
-      Swal.fire('Success', data.message, 'success').then(() => {
-        window.location.href = "{{ url_for('login') }}";
-      });
-    } else {
-      Swal.fire('Error', 'Unexpected response from server', 'error');
+      try {
+        toastr.success(data.message, 'Success');
+        setTimeout(() => {
+          window.location.href = "{{ url_for('login') }}";
+        }, 2000); // Redirect after 2 seconds
+      } catch (toastError) {
+        console.error('Toastr Error:', toastError);
+        alert(data.message); // Fallback to alert if toastr fails
+        window.location.href = "{{ url_for('login') }}"; // Redirect without delay
+      }
     }
   })
   .catch(error => {
     console.error('Error:', error);
-    Swal.fire('Error', 'An unexpected error occurred.', 'error');
+    try {
+      toastr.error(error.message || 'An unexpected error occurred.', 'Error');
+    } catch (toastError) {
+      console.error('Toastr Error:', toastError);
+      alert(error.message || 'An unexpected error occurred.'); // Fallback to alert
+    }
   });
 });
 
