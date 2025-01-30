@@ -357,6 +357,6 @@ def solve_physics_problems(problems):
         solution = response.choices[0].message.content.strip()
         solutions.append(solution)
     return solutions
-port = int(os.environ.get("PORT", 5000))
+
 if __name__ == '__main__':
-    app.run(debug=True,host='0.0.0.0',port=port)
+    app.run()
