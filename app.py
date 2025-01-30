@@ -149,12 +149,12 @@ def register():
             'uploads': 0  # Initialize uploads count
         }
 
-        try:
-            users_collection.insert_one(new_user)
-            flash('Registration successful!', 'success')
-            return jsonify({'message': 'Registration successful'}), 200
-        except Exception as e:
-            return jsonify({'error': 'An unexpected error occurred'}), 500
+    try:
+        users_collection.insert_one(new_user)
+        return jsonify({'message': 'Registration successful'}), 200
+    except Exception as e:
+        return jsonify({'error': 'An unexpected error occurred'}), 500
+
 
     return render_template('register.html')
 
